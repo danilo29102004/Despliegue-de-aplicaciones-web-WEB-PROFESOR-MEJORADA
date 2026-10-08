@@ -45,12 +45,60 @@ class OrderRepository{
         return new Order($orderId, $id, 0, date('Y-m-d H:i:s'), 0);
     }
     //finalizar pedido y el estado del order = 1
-    public static function checkoutOrder($order_id){
-        $db=DB::connect();
-        $q='UPDATE orders SET status=1 WHERE id='.$order_id;
-        $db->query($q);
-        if($db->affected_rows>0) return true;
-        else return false;
+    public static function checkoutOrder($order_id, $buyer_id){
+        $db = DB::connect();
+        $query = 'UPDATE orders SET status = 1
+            WHERE id = ? AND buyer_id = ? AND status = 0';
+        $statement = $db->prepare($query);
+        $statement->bind_param('ii', $order_id, $buyer_id);
+        if(!$statement->execute()){
+            $statement->close();
+            return false;
+        }
+
+        $updated = $statement->affected_rows > 0;
+        $statement->close();
+        return $updated;
+    }
+    //eliminar pedido 
+    public static function deleteOrder($order_id, $buyer_id){
+        $db = DB::connect();
+        $order_id = (int) $order_id;
+        $buyer_id = (int) $buyer_id;
+
+        $db->begin_transaction();
+
+        $query = 'DELETE order_lines FROM order_lines
+            INNER JOIN orders ON orders.id = order_lines.order_id
+            WHERE order_lines.order_id = ? AND orders.buyer_id = ? AND orders.status = 1';
+        $statement = $db->prepare($query);
+        $statement->bind_param('ii', $order_id, $buyer_id);
+        if(!$statement->execute()){
+            $statement->close();
+            $db->rollback();
+            return false;
+        }
+        $statement->close();
+
+        $query = 'DELETE FROM orders WHERE id = ? AND buyer_id = ? AND status = 1';
+        $statement = $db->prepare($query);
+        $statement->bind_param('ii', $order_id, $buyer_id);
+        if(!$statement->execute()){
+            $statement->close();
+            $db->rollback();
+            return false;
+        }
+
+        $deleted = $statement->affected_rows > 0;
+        $statement->close();
+
+        if(!$deleted){
+            $db->rollback();
+            return false;
+        }
+
+        $db->commit();
+        return true;
     }
     
     

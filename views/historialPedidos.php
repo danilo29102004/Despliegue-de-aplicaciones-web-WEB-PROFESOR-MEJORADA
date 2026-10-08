@@ -7,10 +7,10 @@
 </head>
 <body>
     <?php
-    echo "pedidos";
+    echo "inicio <a href=\"index.php\">volver</a><br>";
 
     foreach($orders as $order){
-        echo "<br>pedido: ".$order->getId()." total: ".$order->getTotal()." fecha: ".$order->getDate();
+        echo "<br>pedido: ".$order->getId()." total: ".$order->getTotal()." fecha: ".$order->getDate() . "<a href=\"index.php?c=order&delete=" . $order->getId() . "\">eliminar pedido</a><br>";
     }
     ?>
 </body>

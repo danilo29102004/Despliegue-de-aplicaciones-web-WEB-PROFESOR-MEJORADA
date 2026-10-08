@@ -37,6 +37,50 @@ class OrderLineRepository{
         if($db->affected_rows>0) return true;
         else return false;
     }
+
+    public static function deleteOrderLine($line_id, $buyer_id){
+        $db = DB::connect();
+        $line_id = (int) $line_id;
+        $buyer_id = (int) $buyer_id;
+
+        $query = 'SELECT order_lines.order_id
+            FROM order_lines
+            INNER JOIN orders ON orders.id = order_lines.order_id
+            WHERE order_lines.id = ? AND orders.buyer_id = ? AND orders.status = 0';
+        $statement = $db->prepare($query);
+        $statement->bind_param('ii', $line_id, $buyer_id);
+        $statement->execute();
+        $result = $statement->get_result();
+        $line = $result->fetch_assoc();
+        $statement->close();
+
+        if(!$line){
+            return false;
+        }
+
+        $order_id = (int) $line['order_id'];
+        $query = 'DELETE FROM order_lines WHERE id = ?';
+        $statement = $db->prepare($query);
+        $statement->bind_param('i', $line_id);
+        if(!$statement->execute()){
+            $statement->close();
+            return false;
+        }
+        $statement->close();
+
+        $query = 'UPDATE orders
+            SET total_price = COALESCE(
+                (SELECT SUM(quantity * price) FROM order_lines WHERE order_id = ?),
+                0
+            )
+            WHERE id = ? AND buyer_id = ? AND status = 0';
+        $statement = $db->prepare($query);
+        $statement->bind_param('iii', $order_id, $order_id, $buyer_id);
+        $updated = $statement->execute();
+        $statement->close();
+
+        return $updated;
+    }
     
     
 }

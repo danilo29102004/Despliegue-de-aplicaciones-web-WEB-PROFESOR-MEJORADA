@@ -38,10 +38,18 @@ if(isset($_GET['register'])){
     exit;
 }
 if(isset($_GET['checkout'])){
-    OrderLineRepository::checkoutOrder($_GET['checkout']);
+    $orderId = filter_input(INPUT_GET, 'checkout', FILTER_VALIDATE_INT);
+    if($orderId === false || $orderId === null || $orderId <= 0 || !isset($_SESSION['user'])){
+        http_response_code(400);
+        exit('Identificador de pedido no válido.');
+    }
+
+    OrderRepository::checkoutOrder($orderId, $_SESSION['user']->getId());
     header('location: pedidoFinalizado.php');
     exit;
    }
+//elimiar pedido
+
 
 //añadir al carrito
 

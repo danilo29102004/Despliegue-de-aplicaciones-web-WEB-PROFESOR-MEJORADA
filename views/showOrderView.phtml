@@ -12,7 +12,7 @@
 echo "fecha: ".$order->getDate()."<br>";
 
 foreach($order->getOrderLines() as $ol){
-    echo $ol->getProduct()->getName(). " - ".$ol->getQuantity()." - ".$ol->getPrice()."<br>" . "<a href=\"index.php?controller=order&action=deleteOrderLine&id=" . $ol->getId() . "\">Eliminar</a><br>";
+    echo $ol->getProduct()->getName(). " - ".$ol->getQuantity()." - ".$ol->getPrice()."<br>" . "<a href=\"index.php?c=order&deleteLine=" . $ol->getId() . "\">Eliminar</a><br>";
 }
 
 echo "total: ".$order->getTotal();
