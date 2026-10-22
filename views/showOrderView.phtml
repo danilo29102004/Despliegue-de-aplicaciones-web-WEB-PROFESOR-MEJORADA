@@ -18,7 +18,7 @@ foreach($order->getOrderLines() as $ol){
 echo "total: ".$order->getTotal();
 ?>
 <br>
-<a href="index.php?c=order&checkout=<?= $order->getId() ?>">
+<a href="../index.php?c=order&checkout=<?= $order->getId() ?>">
     Finalizar pedido
 </a>
 

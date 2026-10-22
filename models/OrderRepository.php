@@ -2,6 +2,21 @@
 
 class OrderRepository{
 
+    public static function getAllOrders(){
+        $db = DB::connect();
+        $query = 'SELECT * FROM orders WHERE status = 1';
+        $statement = $db->prepare($query);
+        $statement->execute();
+        $result = $statement->get_result();
+
+        $orders = [];
+        while ($row = $result->fetch_assoc()) {
+            $orders[] = new Order($row['id'], $row['buyer_id'], $row['total_price'], $row['date'], $row['status']);
+        }
+
+        return $orders;
+    }
+
     public static function getOrdersByUserId($id){
         $db = DB::connect();
         $id = (int) $id;
@@ -83,6 +98,43 @@ class OrderRepository{
         $query = 'DELETE FROM orders WHERE id = ? AND buyer_id = ? AND status = 1';
         $statement = $db->prepare($query);
         $statement->bind_param('ii', $order_id, $buyer_id);
+        if(!$statement->execute()){
+            $statement->close();
+            $db->rollback();
+            return false;
+        }
+
+        $deleted = $statement->affected_rows > 0;
+        $statement->close();
+
+        if(!$deleted){
+            $db->rollback();
+            return false;
+        }
+
+        $db->commit();
+        return true;
+    }
+
+    public static function deleteOrderByAdmin($order_id){
+        $db = DB::connect();
+        $order_id = (int) $order_id;
+
+        $db->begin_transaction();
+
+        $query = 'DELETE FROM order_lines WHERE order_id = ?';
+        $statement = $db->prepare($query);
+        $statement->bind_param('i', $order_id);
+        if(!$statement->execute()){
+            $statement->close();
+            $db->rollback();
+            return false;
+        }
+        $statement->close();
+
+        $query = 'DELETE FROM orders WHERE id = ? AND status = 1';
+        $statement = $db->prepare($query);
+        $statement->bind_param('i', $order_id);
         if(!$statement->execute()){
             $statement->close();
             $db->rollback();

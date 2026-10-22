@@ -21,7 +21,7 @@ class OrderLineRepository{
     }
 
     public static function addOrderLineToOrder($order, $product, $quantity){
-           $db=DB::connect();
+        $db=DB::connect();
         $q='INSERT into order_lines VALUES (null, '.$order->getId().', '.$product->getId().', '.$quantity.', '.$product->getPrice().')';
         $db->query($q);
 

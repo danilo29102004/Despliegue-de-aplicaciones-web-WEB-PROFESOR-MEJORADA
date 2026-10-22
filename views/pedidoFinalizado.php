@@ -6,6 +6,9 @@
     <title>Document</title>
 </head>
 <body>
-    gracias por el pedido
+    
+    <h1>Panel de administración</h1>
+    <p>Bienvenido al panel de administración.</p>
+    <a href="../index.php?c=product">Volver a la tienda</a>
 </body>
 </html>

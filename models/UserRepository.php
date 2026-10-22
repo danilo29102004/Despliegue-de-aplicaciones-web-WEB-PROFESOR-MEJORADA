@@ -7,7 +7,7 @@ class UserRepository{
         $query="SELECT * FROM users WHERE id=$id";
         $result=$db->query($query);
         if($user=$result->fetch_assoc()){
-            return new User($user['id'], $user['username']);
+            return new User($user['id'], $user['username'] , $user['rol']);
         }else{
             return null;
         }

@@ -4,12 +4,12 @@ class User{
 
     private $id;
     private $username;
-//    private $rol;
+    private $rol;   
   
-    public function __construct($id, $username) {
+    public function __construct($id, $username, $rol="user") {
         $this->id = $id;
         $this->username = $username;
-        //$this->rol = $rol;
+        $this->rol = $rol;
     }
 
     public function getId() {
@@ -20,8 +20,12 @@ class User{
         return $this->username;
     }
 
-    /*public function getRol() {
+    public function getRol() {
         return $this->rol;
-    }*/
+    }
+    public function setRol($rol) {
+        $this->rol = $rol;
+    }
+
 
 }
